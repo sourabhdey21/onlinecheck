@@ -79,27 +79,27 @@
         </svg>
     </div>
     <div class="container mx-auto px-4 py-10 relative z-10">
-        <div class="max-w-3xl mx-auto">
-            <div class="text-center mb-12">
-                <div class="flex justify-center mb-4">
-                    <div class="bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 p-2 rounded-full shadow-lg">
-                        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="28" cy="28" r="26" fill="#fff"/>
-                          <circle cx="28" cy="28" r="22" stroke="#6366F1" stroke-width="3" fill="none"/>
-                          <circle cx="28" cy="28" r="8" fill="#A21CAF"/>
-                          <path d="M28 6v8M28 42v8M6 28h8M42 28h8" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
-                          <circle cx="28" cy="14" r="2" fill="#6366F1"/>
-                          <circle cx="28" cy="42" r="2" fill="#6366F1"/>
-                          <circle cx="14" cy="28" r="2" fill="#6366F1"/>
-                          <circle cx="42" cy="28" r="2" fill="#6366F1"/>
-                        </svg>
-                    </div>
+        <div class="text-center mb-12">
+            <div class="flex justify-center mb-4">
+                <div class="bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 p-2 rounded-full shadow-lg">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="28" cy="28" r="26" fill="#fff"/>
+                      <circle cx="28" cy="28" r="22" stroke="#6366F1" stroke-width="3" fill="none"/>
+                      <circle cx="28" cy="28" r="8" fill="#A21CAF"/>
+                      <path d="M28 6v8M28 42v8M6 28h8M42 28h8" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="28" cy="14" r="2" fill="#6366F1"/>
+                      <circle cx="28" cy="42" r="2" fill="#6366F1"/>
+                      <circle cx="14" cy="28" r="2" fill="#6366F1"/>
+                      <circle cx="42" cy="28" r="2" fill="#6366F1"/>
+                    </svg>
                 </div>
-                <h1 class="text-5xl font-extrabold text-gray-900 mb-2 tracking-tight drop-shadow-lg">Network Toolkit</h1>
-                <p class="text-lg text-gray-700 font-medium">Scan common TCP and UDP ports on any domain or IP address</p>
             </div>
-
-            <div class="glass p-8 mb-10 shadow-2xl">
+            <h1 class="text-5xl font-extrabold text-gray-900 mb-2 tracking-tight drop-shadow-lg">Network Toolkit</h1>
+            <p class="text-lg text-gray-700 font-medium">Scan common TCP and UDP ports on any domain or IP address</p>
+        </div>
+        <div class="flex flex-col lg:flex-row gap-8 justify-center items-stretch">
+            <!-- Port Scanner -->
+            <div class="glass p-8 shadow-2xl flex-1 flex flex-col justify-between min-w-[320px]">
                 <div class="space-y-6">
                     <div class="tooltip">
                         <label for="target" class="block text-base font-semibold text-gray-700 mb-2">Target (Domain or IP)</label>
@@ -108,7 +108,6 @@
                                placeholder="example.com or 192.168.1.1">
                         <span class="tooltiptext">Enter a valid domain or IP address to scan.</span>
                     </div>
-                    
                     <div class="tooltip">
                         <label class="block text-base font-semibold text-gray-700 mb-2">Protocol</label>
                         <div class="flex space-x-6">
@@ -125,7 +124,6 @@
                         </div>
                         <span class="tooltiptext">Choose which protocol to scan.</span>
                     </div>
-
                     <button onclick="startScan()" id="scanBtn"
                             class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 px-4 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 font-bold text-lg flex items-center justify-center gap-2 pulse">
                         <span id="scanButtonText">Start Scan</span>
@@ -136,21 +134,26 @@
                             </svg>
                         </div>
                     </button>
-
-                    <!-- Progress bar -->
                     <div id="progressBarContainer" class="w-full h-2 bg-gray-200 rounded-full mt-2 hidden">
                         <div id="progressBar" class="h-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
+                <div id="results" class="hidden fade-in mt-8">
+                    <div class="glass p-8 shadow-2xl">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">Scan Results</h2>
+                        <div id="resultContent" class="space-y-4">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- DNS & MX Lookup Section -->
-            <div class="glass p-8 mb-10 shadow-2xl">
+            <!-- DNS & MX Lookup -->
+            <div class="glass p-8 shadow-2xl flex-1 flex flex-col justify-between min-w-[320px]">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <svg class="inline h-7 w-7 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                     DNS & MX Lookup
                 </h2>
-                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="dnsDomain" class="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-lg transition" placeholder="Enter domain (e.g. example.com)">
                     <button onclick="dnsLookup()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">DNS Lookup</button>
                     <button onclick="mxLookup()" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">MX Lookup</button>
@@ -158,27 +161,29 @@
                 <div id="dnsResults" class="space-y-2"></div>
                 <div id="mxResults" class="space-y-2"></div>
             </div>
-
-            <!-- Blacklist Check Section -->
-            <div class="glass p-8 mb-10 shadow-2xl">
+            <!-- Blacklist Check -->
+            <div class="glass p-8 shadow-2xl flex-1 flex flex-col justify-between min-w-[320px]">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <svg class="inline h-7 w-7 text-pink-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#ec4899" stroke-width="2" fill="none"/><path d="M8 12l2 2 4-4" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Blacklist Check
                 </h2>
-                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="blTarget" class="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:border-pink-400 text-lg transition" placeholder="Enter domain or IP">
                     <button onclick="blacklistCheck()" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">Check Blacklists</button>
                 </div>
                 <div id="blResults" class="space-y-2"></div>
             </div>
-
-            <div id="results" class="hidden fade-in">
-                <div class="glass p-8 shadow-2xl">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Scan Results</h2>
-                    <div id="resultContent" class="space-y-4">
-                        <!-- Results will be populated here -->
-                    </div>
+            <!-- Domain Availability Check Section -->
+            <div class="glass p-8 shadow-2xl flex-1 flex flex-col justify-between min-w-[320px]">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg class="inline h-7 w-7 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="2" fill="none"/><path d="M8 12l2 2 4-4" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Domain Availability
+                </h2>
+                <div class="flex flex-col gap-4 mb-4">
+                    <input type="text" id="availDomain" class="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-green-400 text-lg transition" placeholder="Enter domain (e.g. example.com)">
+                    <button onclick="domainAvailableCheck()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">Check Availability</button>
                 </div>
+                <div id="availResults" class="space-y-2"></div>
             </div>
         </div>
     </div>
@@ -340,6 +345,27 @@
                 }
             } catch (e) {
                 blResults.innerHTML = '<span class="text-red-500">Error during blacklist check.</span>';
+            }
+        }
+
+        async function domainAvailableCheck() {
+            const domain = document.getElementById('availDomain').value;
+            const availResults = document.getElementById('availResults');
+            availResults.innerHTML = '<span class="text-green-500">Checking domain availability...</span>';
+            try {
+                const response = await fetch('/domain-available', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    availResults.innerHTML = `<div class='fade-in'><span class='font-semibold'>${data.domain}:</span> ${data.available ? "<span class='text-green-600 font-bold'>Available</span>" : "<span class='text-red-600 font-bold'>Not Available</span>"}</div>`;
+                } else {
+                    availResults.innerHTML = `<span class='text-red-500'>${data.error}</span>`;
+                }
+            } catch (e) {
+                availResults.innerHTML = '<span class="text-red-500">Error during availability check.</span>';
             }
         }
     </script>

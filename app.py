@@ -142,5 +142,24 @@ def blacklist_check():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/domain-available', methods=['POST'])
+def domain_available():
+    data = request.get_json()
+    domain = data.get('domain')
+    if not domain:
+        return jsonify({'error': 'Domain is required'}), 400
+    try:
+        try:
+            # Try to resolve A or AAAA record
+            dns.resolver.resolve(domain, 'A')
+            available = False
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+            available = True
+        except Exception:
+            available = False
+        return jsonify({'domain': domain, 'available': available})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 if __name__ == '__main__':
     app.run(debug=True) 
