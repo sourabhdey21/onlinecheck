@@ -69,15 +69,23 @@ jobs:
                 }
             }
             EON
+          EOF
 
-            # Enable the site
-            sudo ln -s /etc/nginx/sites-available/network-toolkit /etc/nginx/sites-enabled/
+      - name: Enable Nginx site
+        run: |
+          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo ln -s /etc/nginx/sites-available/network-toolkit /etc/nginx/sites-enabled/ || true
+          EOF
 
-            # Test nginx configuration
-            sudo nginx -t
-
-            # Restart nginx
-            sudo systemctl restart nginx
+      - name: Test and restart Nginx
+        run: |
+          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            if sudo nginx -t; then
+                sudo systemctl restart nginx
+            else
+                echo "Nginx configuration test failed"
+                exit 1
+            fi
           EOF
 
       - name: SSH and deploy on EC2
