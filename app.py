@@ -4,6 +4,8 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 import time
 import dns.resolver
+from scapy.all import traceroute, IP, ICMP
+import re
 
 app = Flask(__name__)
 
@@ -161,5 +163,40 @@ def domain_available():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/traceroute', methods=['POST'])
+def traceroute_route():
+    data = request.get_json()
+    target = data.get('target')
+    
+    if not target:
+        return jsonify({'error': 'Target is required'}), 400
+    
+    try:
+        # Resolve domain to IP if needed
+        ip = socket.gethostbyname(target)
+        
+        # Run traceroute
+        result, unans = traceroute(ip, timeout=2, verbose=0)
+        
+        # Process results
+        hops = []
+        for snd, rcv in result:
+            if rcv:
+                hop = {
+                    'ttl': snd.ttl,
+                    'ip': rcv.src,
+                    'rtt': (rcv.time - snd.time) * 1000,  # Convert to milliseconds
+                    'hostname': socket.getfqdn(rcv.src)
+                }
+                hops.append(hop)
+        
+        return jsonify({
+            'target': target,
+            'ip': ip,
+            'hops': hops
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(host='0.0.0.0', debug=True)

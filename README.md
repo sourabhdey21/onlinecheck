@@ -1,6 +1,6 @@
-# Port Scanner Web Application
+# Network Toolkit Web Application
 
-A modern web application for scanning common TCP and UDP ports on any domain or IP address. Built with Python Flask and a beautiful UI using Tailwind CSS.
+A modern web application for network diagnostics and analysis. Built with Python Flask and a beautiful UI using Tailwind CSS.
 
 ## Features
 
@@ -9,6 +9,10 @@ A modern web application for scanning common TCP and UDP ports on any domain or 
 - Modern and responsive user interface
 - Real-time scanning results
 - Concurrent port scanning for faster results
+- DNS and MX record lookup
+- Blacklist checking
+- Domain availability checking
+- Traceroute functionality
 
 ## Installation
 
@@ -30,9 +34,12 @@ A modern web application for scanning common TCP and UDP ports on any domain or 
    python app.py
    ```
 2. Open your web browser and navigate to `http://localhost:5000`
-3. Enter a domain name or IP address
-4. Select the protocol (TCP or UDP)
-5. Click "Start Scan" to begin the port scan
+3. Use any of the following features:
+   - Port Scanner: Enter a domain or IP and scan for open ports
+   - DNS & MX Lookup: Check DNS and MX records for a domain
+   - Blacklist Check: Verify if a domain or IP is blacklisted
+   - Domain Availability: Check if a domain is available
+   - Traceroute: Trace the network path to a destination
 
 ## Security Note
 
@@ -64,4 +71,14 @@ This tool is intended for legitimate network administration and security testing
 - 69 (TFTP)
 - 123 (NTP)
 - 161, 162 (SNMP)
-- 500 (ISAKMP) 
+- 500 (ISAKMP)
+
+## Docker Support
+
+The application can also be run using Docker:
+
+```bash
+docker-compose up --build
+```
+
+Note: The application requires root privileges to run traceroute functionality. 
