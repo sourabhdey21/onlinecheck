@@ -1,0 +1,77 @@
+from flask import Flask, render_template, request, jsonify
+import socket
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+app = Flask(__name__)
+
+# Common ports to scan
+COMMON_PORTS = {
+    'TCP': [20, 21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 993, 995, 3306, 3389, 5432, 8080],
+    'UDP': [53, 67, 68, 69, 123, 161, 162, 500]
+}
+
+def scan_port(protocol, host, port, timeout=1):
+    try:
+        if protocol == 'TCP':
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        
+        sock.settimeout(timeout)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        
+        if result == 0:
+            return {
+                'port': port,
+                'status': 'open',
+                'protocol': protocol
+            }
+    except:
+        pass
+    return None
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/scan', methods=['POST'])
+def scan():
+    data = request.get_json()
+    target = data.get('target')
+    protocol = data.get('protocol', 'TCP')
+    
+    if not target:
+        return jsonify({'error': 'Target is required'}), 400
+    
+    try:
+        # Resolve domain to IP if needed
+        ip = socket.gethostbyname(target)
+    except socket.gaierror:
+        return jsonify({'error': 'Invalid domain or IP address'}), 400
+    
+    results = []
+    ports_to_scan = COMMON_PORTS.get(protocol, [])
+    
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        futures = [
+            executor.submit(scan_port, protocol, ip, port)
+            for port in ports_to_scan
+        ]
+        
+        for future in futures:
+            result = future.result()
+            if result:
+                results.append(result)
+    
+    return jsonify({
+        'target': target,
+        'ip': ip,
+        'protocol': protocol,
+        'results': results
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True) 
