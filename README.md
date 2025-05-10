@@ -14,6 +14,16 @@ A modern web application for network diagnostics and analysis. Built with Python
 - Domain availability checking
 - Traceroute functionality
 
+## Screenshots
+
+### Main Dashboard
+![Main Dashboard](screenshots/dashboard.png)
+*The main dashboard showing all available network tools in a modern, responsive interface*
+
+### Scan Results
+![Scan Results](screenshots/scannedreport.png)
+*Detailed port scan results with open ports and their status*
+
 ## Installation
 
 1. Clone this repository
