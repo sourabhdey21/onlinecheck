@@ -136,6 +136,21 @@
                 </div>
             </div>
 
+            <!-- DNS & MX Lookup Section -->
+            <div class="glass p-8 mb-10 shadow-2xl">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg class="inline h-7 w-7 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    DNS & MX Lookup
+                </h2>
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <input type="text" id="dnsDomain" class="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-lg transition" placeholder="Enter domain (e.g. example.com)">
+                    <button onclick="dnsLookup()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">DNS Lookup</button>
+                    <button onclick="mxLookup()" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-xl font-bold shadow hover:scale-105 transition-all">MX Lookup</button>
+                </div>
+                <div id="dnsResults" class="space-y-2"></div>
+                <div id="mxResults" class="space-y-2"></div>
+            </div>
+
             <div id="results" class="hidden fade-in">
                 <div class="glass p-8 shadow-2xl">
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Scan Results</h2>
@@ -242,6 +257,47 @@
                 button.classList.add('pulse');
                 buttonText.textContent = 'Start Scan';
                 spinner.classList.add('hidden');
+            }
+        }
+
+        async function dnsLookup() {
+            const domain = document.getElementById('dnsDomain').value;
+            const dnsResults = document.getElementById('dnsResults');
+            dnsResults.innerHTML = '<span class="text-blue-500">Looking up DNS records...</span>';
+            try {
+                const response = await fetch('/dns-lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    dnsResults.innerHTML = `<div class='fade-in'><span class='font-semibold'>A Records for ${data.domain}:</span><ul class='list-disc ml-6 mt-1'>${data.records.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+                } else {
+                    dnsResults.innerHTML = `<span class='text-red-500'>${data.error}</span>`;
+                }
+            } catch (e) {
+                dnsResults.innerHTML = '<span class="text-red-500">Error during lookup.</span>';
+            }
+        }
+        async function mxLookup() {
+            const domain = document.getElementById('dnsDomain').value;
+            const mxResults = document.getElementById('mxResults');
+            mxResults.innerHTML = '<span class="text-pink-500">Looking up MX records...</span>';
+            try {
+                const response = await fetch('/mx-lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    mxResults.innerHTML = `<div class='fade-in'><span class='font-semibold'>MX Records for ${data.domain}:</span><ul class='list-disc ml-6 mt-1'>${data.records.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+                } else {
+                    mxResults.innerHTML = `<span class='text-red-500'>${data.error}</span>`;
+                }
+            } catch (e) {
+                mxResults.innerHTML = '<span class="text-red-500">Error during lookup.</span>';
             }
         }
     </script>

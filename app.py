@@ -3,6 +3,7 @@ import socket
 import threading
 from concurrent.futures import ThreadPoolExecutor
 import time
+import dns.resolver
 
 app = Flask(__name__)
 
@@ -72,6 +73,32 @@ def scan():
         'protocol': protocol,
         'results': results
     })
+
+@app.route('/dns-lookup', methods=['POST'])
+def dns_lookup():
+    data = request.get_json()
+    domain = data.get('domain')
+    if not domain:
+        return jsonify({'error': 'Domain is required'}), 400
+    try:
+        answers = dns.resolver.resolve(domain, 'A')
+        records = [r.to_text() for r in answers]
+        return jsonify({'domain': domain, 'records': records})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/mx-lookup', methods=['POST'])
+def mx_lookup():
+    data = request.get_json()
+    domain = data.get('domain')
+    if not domain:
+        return jsonify({'error': 'Domain is required'}), 400
+    try:
+        answers = dns.resolver.resolve(domain, 'MX')
+        records = [r.to_text() for r in answers]
+        return jsonify({'domain': domain, 'records': records})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True) 
