@@ -27,12 +27,12 @@ jobs:
         run: |
           rsync -avz --exclude 'venv' --exclude '.git' -e "ssh -i ~/.ssh/private_key" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/network-toolkit/
 
-      - name: Install Docker and Docker Compose on EC2
+      - name: Install Docker, Docker Compose, and Nginx on EC2
         run: |
           ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             # Update package list and install dependencies
             sudo apt-get update
-            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common nginx
 
             # Add Docker's official GPG key
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -50,6 +50,34 @@ jobs:
 
             # Add current user to docker group
             sudo usermod -aG docker $USER
+
+            # Remove default nginx site
+            sudo rm /etc/nginx/sites-enabled/default
+
+            # Create new nginx configuration
+            sudo tee /etc/nginx/sites-available/network-toolkit << 'EON'
+            server {
+                listen 80;
+                server_name ${{ secrets.EC2_HOST }};
+
+                location / {
+                    proxy_pass http://localhost:5000;
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                }
+            }
+            EON
+
+            # Enable the site
+            sudo ln -s /etc/nginx/sites-available/network-toolkit /etc/nginx/sites-enabled/
+
+            # Test nginx configuration
+            sudo nginx -t
+
+            # Restart nginx
+            sudo systemctl restart nginx
           EOF
 
       - name: SSH and deploy on EC2
