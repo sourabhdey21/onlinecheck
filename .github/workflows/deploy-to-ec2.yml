@@ -68,7 +68,7 @@ jobs:
                     proxy_set_header X-Forwarded-Proto \$scheme;
                 }
             }
-            EON
+            
           EOF
 
       - name: Enable Nginx site
