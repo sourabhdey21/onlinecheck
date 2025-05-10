@@ -13,6 +13,17 @@ COMMON_PORTS = {
     'UDP': [53, 67, 68, 69, 123, 161, 162, 500]
 }
 
+BLACKLISTS = [
+    'zen.spamhaus.org',
+    'bl.spamcop.net',
+    'b.barracudacentral.org',
+    'dnsbl.sorbs.net',
+    'psbl.surriel.com',
+    'dnsbl-1.uceprotect.net',
+    'spam.dnsbl.sorbs.net',
+    'cbl.abuseat.org',
+]
+
 def scan_port(protocol, host, port, timeout=1):
     try:
         if protocol == 'TCP':
@@ -97,6 +108,37 @@ def mx_lookup():
         answers = dns.resolver.resolve(domain, 'MX')
         records = [r.to_text() for r in answers]
         return jsonify({'domain': domain, 'records': records})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+def reverse_ip(ip):
+    return '.'.join(reversed(ip.split('.')))
+
+@app.route('/blacklist-check', methods=['POST'])
+def blacklist_check():
+    data = request.get_json()
+    target = data.get('target')
+    if not target:
+        return jsonify({'error': 'Domain or IP is required'}), 400
+    try:
+        # If domain, resolve to IP
+        try:
+            ip = socket.gethostbyname(target)
+        except Exception:
+            ip = target
+        reversed_ip = reverse_ip(ip)
+        results = []
+        for bl in BLACKLISTS:
+            query = f"{reversed_ip}.{bl}"
+            try:
+                dns.resolver.resolve(query, 'A')
+                listed = True
+            except dns.resolver.NXDOMAIN:
+                listed = False
+            except Exception:
+                listed = 'error'
+            results.append({'blacklist': bl, 'listed': listed})
+        return jsonify({'target': target, 'ip': ip, 'results': results})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
