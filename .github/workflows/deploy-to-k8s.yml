@@ -42,9 +42,9 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Deploy to Kubernetes
+      - name: Clean up Kubernetes
         run: |
-          kubectl apply -f kubernetes/namespace.yaml
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/service.yaml
+          kubectl delete -f kubernetes/namespace.yaml
+          kubectl delete -f kubernetes/deployment.yaml
+          kubectl delete -f kubernetes/service.yaml
           kubectl rollout status deployment/network-toolkit -n network-toolkit
