@@ -71,3 +71,4 @@ npm-debug.log
 staticfiles/
 static/
 public/ 
+gitlabrunner.sh
