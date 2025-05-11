@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+          tags: sourabhdey21700/networktool_kit:latest
 
       - name: Set up Kubeconfig
         run: |
@@ -35,5 +35,5 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image deployment/network-toolkit network-toolkit=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest --record
+          kubectl set image deployment/network-toolkit network-toolkit=sourabhdey21700/networktool_kit:latest --record
           kubectl rollout status deployment/network-toolkit 
