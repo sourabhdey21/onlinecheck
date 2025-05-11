@@ -29,6 +29,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           sudo docker build -t sourabhdey21700/networktool_kit:latest .
+          sudo docker tag sourabhdey21700/networktool_kit:latest sourabhdey21700/networktool_kit:latest
           sudo docker push sourabhdey21700/networktool_kit:latest
 
       - name: Install kubectl
