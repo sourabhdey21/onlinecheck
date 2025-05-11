@@ -3,7 +3,7 @@ name: Deploy to Kubernetes on self-hosted runner
 on:
   push:
     branches:
-      - master
+      - kube
 
 jobs:
   build-and-deploy:
@@ -42,9 +42,9 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Clean up Kubernetes
+      - name: Deploy to Kubernetes
         run: |
-          kubectl delete -f kubernetes/namespace.yaml
-          kubectl delete -f kubernetes/deployment.yaml
-          kubectl delete -f kubernetes/service.yaml
+          kubectl apply -f kubernetes/namespace.yaml
+          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f kubernetes/service.yaml
           kubectl rollout status deployment/network-toolkit -n network-toolkit
