@@ -1,98 +1,98 @@
-name: Deploy to EC2 staging deployment
+# name: Deploy to EC2 staging deployment
 
-on:
-  push:
-    branches:
-      - staging
+# on:
+#   push:
+#     branches:
+#       - staging
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Configure SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private_key
-          chmod 600 ~/.ssh/private_key
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/private_key
-          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+#       - name: Configure SSH
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "$SSH_PRIVATE_KEY" > ~/.ssh/private_key
+#           chmod 600 ~/.ssh/private_key
+#           eval $(ssh-agent -s)
+#           ssh-add ~/.ssh/private_key
+#           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
-      - name: Copy files to EC2
-        run: |
-          rsync -avz --exclude 'venv' --exclude '.git' -e "ssh -i ~/.ssh/private_key" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/network-toolkit/
+#       - name: Copy files to EC2
+#         run: |
+#           rsync -avz --exclude 'venv' --exclude '.git' -e "ssh -i ~/.ssh/private_key" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/network-toolkit/
 
-      - name: Install Docker, Docker Compose, and Nginx on EC2
-        run: |
-          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # Update package list and install dependencies
-            sudo apt-get update
-            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common nginx
+#       - name: Install Docker, Docker Compose, and Nginx on EC2
+#         run: |
+#           ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+#             # Update package list and install dependencies
+#             sudo apt-get update
+#             sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common nginx
 
-            # Add Docker's official GPG key
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#             # Add Docker's official GPG key
+#             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-            # Add Docker repository
-            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+#             # Add Docker repository
+#             sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-            # Install Docker
-            sudo apt-get update
-            sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+#             # Install Docker
+#             sudo apt-get update
+#             sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-            # Install Docker Compose
-            sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+#             # Install Docker Compose
+#             sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#             sudo chmod +x /usr/local/bin/docker-compose
 
-            # Add current user to docker group
-            sudo usermod -aG docker $USER
+#             # Add current user to docker group
+#             sudo usermod -aG docker $USER
 
-            # Remove default nginx site
-            sudo rm /etc/nginx/sites-enabled/default
+#             # Remove default nginx site
+#             sudo rm /etc/nginx/sites-enabled/default
 
-            # Create new nginx configuration
-            sudo tee /etc/nginx/sites-available/network-toolkit << 'EON'
-            server {
-                listen 80;
-                server_name ${{ secrets.EC2_HOST }};
+#             # Create new nginx configuration
+#             sudo tee /etc/nginx/sites-available/network-toolkit << 'EON'
+#             server {
+#                 listen 80;
+#                 server_name ${{ secrets.EC2_HOST }};
 
-                location / {
-                    proxy_pass http://localhost:5000;
-                    proxy_set_header Host \$host;
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
-                }
-            }
+#                 location / {
+#                     proxy_pass http://localhost:5000;
+#                     proxy_set_header Host \$host;
+#                     proxy_set_header X-Real-IP \$remote_addr;
+#                     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+#                     proxy_set_header X-Forwarded-Proto \$scheme;
+#                 }
+#             }
             
-          EOF
+#           EOF
 
-      - name: Enable Nginx site
-        run: |
-          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            sudo ln -s /etc/nginx/sites-available/network-toolkit /etc/nginx/sites-enabled/ || true
-          EOF
+#       - name: Enable Nginx site
+#         run: |
+#           ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+#             sudo ln -s /etc/nginx/sites-available/network-toolkit /etc/nginx/sites-enabled/ || true
+#           EOF
 
-      - name: Test and restart Nginx
-        run: |
-          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            if sudo nginx -t; then
-                sudo systemctl restart nginx
-            else
-                echo "Nginx configuration test failed"
-                exit 1
-            fi
-          EOF
+#       - name: Test and restart Nginx
+#         run: |
+#           ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+#             if sudo nginx -t; then
+#                 sudo systemctl restart nginx
+#             else
+#                 echo "Nginx configuration test failed"
+#                 exit 1
+#             fi
+#           EOF
 
-      - name: SSH and deploy on EC2
-        run: |
-          ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/${{ secrets.EC2_USER }}/network-toolkit
-            docker-compose down || true
-            docker-compose build --no-cache
-            docker-compose up -d --remove-orphans
-          EOF
+#       - name: SSH and deploy on EC2
+#         run: |
+#           ssh -i ~/.ssh/private_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+#             cd /home/${{ secrets.EC2_USER }}/network-toolkit
+#             docker-compose down || true
+#             docker-compose build --no-cache
+#             docker-compose up -d --remove-orphans
+#           EOF
