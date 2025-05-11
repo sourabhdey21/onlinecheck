@@ -3,7 +3,7 @@ name: Deploy to EC2 staging deployment
 on:
   push:
     branches:
-      - staging
+      - ec2
 
 jobs:
   deploy:
