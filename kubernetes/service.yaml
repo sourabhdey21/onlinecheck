@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: network-toolkit
+  namespace: network-toolkit
+spec:
+  selector:
+    app: network-toolkit
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer

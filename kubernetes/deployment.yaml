@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-toolkit
+  namespace: network-toolkit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-toolkit
+  template:
+    metadata:
+      labels:
+        app: network-toolkit
+    spec:
+      containers:
+        - name: network-toolkit
+          image: sourabhdey21700/networktool_kit:v1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_ENV
+              value: production 
